@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "948510681637",
+    "project_id": "base-android-project-4f127",
+    "storage_bucket": "base-android-project-4f127.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:948510681637:android:dde65355638206f304adcc",
+        "android_client_info": {
+          "package_name": "com.vungn.application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDs76OfzJWGEY6gn6H-vqcvIADWameF7Ig"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

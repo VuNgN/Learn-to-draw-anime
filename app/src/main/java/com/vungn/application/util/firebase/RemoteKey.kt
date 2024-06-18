@@ -1,0 +1,25 @@
+package com.vungn.application.util.firebase
+
+object RemoteKey {
+    const val INTER_LAST_TIME = "inter_last_time"
+    const val BANNER_TRACE_STATUS = "banner_trace_status"
+    const val BANNER_SKETCH_STATUS = "banner_sketch_status"
+    const val BANNER_HOME_STATUS = "banner_home_status"
+    const val BANNER_DRAW_STATUS = "banner_draw_status"
+    const val INTER_BACK_STATUS = "inter_back_status"
+    const val INTER_HOME_STATUS = "inter_home_status"
+    const val INTER_SKETCH_STATUS = "inter_sketch_status"
+    const val INTER_TRACE_STATUS = "inter_trace_status"
+    const val NATIVE_SEARCH_STATUS = "native_search_status"
+    const val NATIVE_ONBOARDING_STATUS = "native_onboarding_status"
+    const val NATIVE_CATEGORY_STATUS = "native_category_status"
+    const val NATIVE_IMAGEDETAIL_STATUS = "native_imagedetail_status"
+    const val NATIVE_HOME_STATUS = "native_home_status"
+    const val NATIVE_DRAWINGTUTORIAL_STATUS = "native_drawingtutorial_status"
+    const val NATIVE_LANGUAGE_STATUS = "native_language_status"
+    const val NATIVE_SKETCH_STATUS = "native_sketch_status"
+    const val NATIVE_TRACE_STATUS = "native_trace_status"
+    const val OPENAD_RESUME_STATUS = "openad_resume_status"
+    const val OPENAD_LAUNCH_STATUS = "openad_launch_status"
+    const val REWARD_STEPBYSTEP_STATUS = "reward_stepbystep_status"
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<defaults>
+  <entry>
+    <key>inter_last_time</key>
+    <value>20000</value>
+  </entry>
+</defaults>
