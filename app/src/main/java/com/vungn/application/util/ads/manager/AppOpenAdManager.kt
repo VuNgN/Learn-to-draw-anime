@@ -3,13 +3,13 @@ package com.vungn.application.util.ads.manager
 import android.app.Activity
 import android.content.Context
 import android.util.Log
-import com.vungn.application.util.ads.AdKeys
-import com.vungn.application.util.ads.GoogleMobileAdsConsentManager
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
+import com.vungn.application.util.ads.AdKeys
+import com.vungn.application.util.ads.GoogleMobileAdsConsentManager
 import java.util.Date
 
 

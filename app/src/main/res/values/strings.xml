@@ -2,7 +2,11 @@
     <string name="app_name">Base Application</string>
     <string name="notify_channel_name">Notification channel</string>
     <string name="welcome_back">Welcome back!</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
+    <string name="gdpr_permission">GDPR Permission</string>
+    <string name="gdqr_permission_desc">This app uses personalized ads to support development. Please accept to continue.</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
     <string name="default_language">Default</string>
     <string name="english">English</string>
     <string name="german">German</string>

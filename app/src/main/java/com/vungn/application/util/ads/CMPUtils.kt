@@ -1,12 +1,13 @@
 package com.vungn.application.util.ads
 
+import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.preference.PreferenceManager
-import android.view.LayoutInflater
-import androidx.appcompat.app.AlertDialog
-import com.vungn.application.databinding.DialogGdprPermissionBinding
+import android.view.ViewGroup
+import com.vungn.application.R
+import com.vungn.application.ui.custom.dialog.MessageDialog
 
 class CMPUtils(applicationContext: Context) {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
@@ -15,7 +16,13 @@ class CMPUtils(applicationContext: Context) {
         get() = prefs.getBoolean(CHECK_GDPR, false)
         set(value) = prefs.edit().putBoolean(CHECK_GDPR, value).apply()
 
+    fun isGDPR(): Boolean {
+        val gdpr = prefs.getInt("IABTCF_gdprApplies", 0)
+        return gdpr == 1
+    }
+
     fun requiredShowCMPDialog(): Boolean {
+        // https://stackoverflow.com/questions/69307205/mandatory-consent-for-admob-user-messaging-platform
         val purposeConsent = prefs.getString("IABTCF_PurposeConsents", "") ?: ""
         val vendorConsent = prefs.getString("IABTCF_VendorConsents", "") ?: ""
         val vendorLI = prefs.getString("IABTCF_VendorLegitimateInterests", "") ?: ""
@@ -26,11 +33,11 @@ class CMPUtils(applicationContext: Context) {
         val hasGoogleVendorLI = hasAttribute(vendorLI, index = googleId)
 
         // Minimum required for at least non-personalized ads
-        return !(hasConsentFor(
+        return (!hasConsentFor(
             listOf(1),
             purposeConsent,
             hasGoogleVendorConsent
-        ) && hasConsentOrLegitimateInterestFor(
+        ) && !hasConsentOrLegitimateInterestFor(
             listOf(2, 7, 9, 10),
             purposeConsent,
             purposeLI,
@@ -70,23 +77,34 @@ class CMPUtils(applicationContext: Context) {
     }
 
 
-    fun initGdprPermissionDialog(context: Context, callback: (granted: Boolean) -> Unit): AlertDialog {
-        val builder = AlertDialog.Builder(context)
-        val binding = DialogGdprPermissionBinding.inflate(LayoutInflater.from(context), null, false)
-        builder.setView(binding.root)
-        val gdprPermissionDialog = builder.create()
-        gdprPermissionDialog.window?.setBackgroundDrawable(
-            ColorDrawable(Color.TRANSPARENT)
-        )
-        binding.imageGdprClose.setOnClickListener {
-            gdprPermissionDialog.dismiss()
-            callback.invoke(false)
+    fun initGdprPermissionDialog(context: Context, callback: (granted: Boolean) -> Unit): Dialog {
+        val dialog = Dialog(context)
+        val dialogView = MessageDialog(context)
+        dialogView.setTitle(context.getString(R.string.gdpr_permission))
+        dialogView.setMessage(context.getString(R.string.gdqr_permission_desc))
+        dialogView.setPositiveButtonText(context.getString(R.string.accept))
+        dialogView.setNegativeButtonText(context.getString(R.string.decline))
+        dialogView.setOnMessageDialogListener(object : MessageDialog.OnMessageDialogListener {
+            override fun onPositiveClick() {
+                callback(true)
+                dialog.dismiss()
+            }
+
+            override fun onNegativeClick() {
+//                callback(false)
+                dialog.dismiss()
+            }
+        })
+        dialog.setOnDismissListener {
+            callback(false)
         }
-        binding.tvGdprGrant.setOnClickListener {
-            gdprPermissionDialog.dismiss()
-            callback.invoke(true)
+        dialog.setContentView(dialogView)
+        dialog.window?.apply {
+            setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
-        return gdprPermissionDialog
+        dialog.show()
+        return dialog
     }
 
     companion object {

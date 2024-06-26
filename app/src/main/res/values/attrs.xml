@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="title" format="string" />
+    <declare-styleable name="MessageDialog">
+        <attr name="title" />
+        <attr name="message" format="string" />
+        <attr name="positive_button_text" format="string" />
+        <attr name="negative_button_text" format="string" />
+    </declare-styleable>
+</resources>

@@ -8,12 +8,10 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.vungn.application.MyApplication
 import com.vungn.application.util.ads.manager.AppBannerAdManager
-import com.vungn.application.util.ads.manager.AppInterstitialAdManager
 import com.vungn.application.util.ads.manager.AppNativeAdManager
 import com.vungn.application.util.ads.manager.AppOpenAdManager
 import com.vungn.application.util.ads.manager.AppRewardedAdManager
 import com.vungn.application.util.firebase.FirebaseHelper
-import com.vungn.application.util.network.NetworkHelper
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -22,7 +20,6 @@ class AdHelper(private val activity: Activity) {
     private val appRewardedAdManager: AppRewardedAdManager by lazy { AppRewardedAdManager(activity) }
     private val appNativeAdManager: AppNativeAdManager by lazy { AppNativeAdManager() }
     private val appBannerAdManager: AppBannerAdManager by lazy { AppBannerAdManager() }
-    private val appInterstitialAdManager: AppInterstitialAdManager by lazy { AppInterstitialAdManager() }
     private val googleMobileAdsConsentManager = GoogleMobileAdsConsentManager.getInstance(
         MyApplication.applicationContext()
     )
@@ -91,64 +88,52 @@ class AdHelper(private val activity: Activity) {
     }
 
 
-    fun loadRewardedAd(onFinish: () -> Unit = {}) {
-        if (cmpUtils.isCheckGDPR) {
+    fun loadRewardedAd(onFinish: () -> Unit = {}, onGdprDenied: () -> Unit = {}) {
+        if (cmpUtils.isGDPR()) {
             if (cmpUtils.requiredShowCMPDialog()) {
-                NetworkHelper.hasInternetAccessCheck(
-                    doTask = {
-                        gdprPermissionsDialog?.dismiss()
-                        gdprPermissionsDialog =
-                            cmpUtils.initGdprPermissionDialog(
-                                activity,
-                                callback = { granted ->
-                                    if (granted) {
-                                        googleMobileAdsConsentManager.gatherConsent(
-                                            activity,
-                                            onCanShowAds = {
-                                                appRewardedAdManager.loadRewardedAd {
-                                                    onFinish()
-                                                }
-                                            },
-                                            onDisableAds = {
-                                                onFinish()
-                                            },
-                                        )
-                                    } else {
+//                gdprPermissionsDialog?.dismiss()
+                gdprPermissionsDialog =
+                    cmpUtils.initGdprPermissionDialog(
+                        activity,
+                        callback = { granted ->
+                            if (granted) {
+                                googleMobileAdsConsentManager.gatherConsent(
+                                    activity,
+                                    onCanShowAds = {
+                                        createTimer {
+                                            onFinish()
+                                        }
+                                        appRewardedAdManager.loadRewardedAd {
+                                            timer.cancel()
+                                            onFinish()
+                                        }
+                                    },
+                                    onDisableAds = {
                                         onFinish()
-                                    }
-                                }
-                            )
-                        gdprPermissionsDialog?.show()
-                    },
-                    doException = {
-                        onFinish()
-                    },
-                    activity = activity
-                )
+                                    },
+                                )
+                            } else {
+                                onGdprDenied()
+                            }
+                        }
+                    )
+                gdprPermissionsDialog?.show()
             } else {
                 appRewardedAdManager.loadRewardedAd {
                     onFinish()
                 }
             }
         } else {
-            NetworkHelper.hasInternetAccessCheck(
-                doTask = {
-                    googleMobileAdsConsentManager.gatherConsent(
-                        activity,
-                        onCanShowAds = {
-                            appRewardedAdManager.loadRewardedAd {
-                                onFinish()
-                            }
-                        },
-                        onDisableAds = {
-                            onFinish()
-                        }
-                    )
+            googleMobileAdsConsentManager.gatherConsent(
+                activity,
+                onCanShowAds = {
+                    appRewardedAdManager.loadRewardedAd {
+                        onFinish()
+                    }
                 },
-                doException = {
+                onDisableAds = {
                     onFinish()
-                },
-                activity = activity
+                }
             )
         }
     }
@@ -166,58 +151,6 @@ class AdHelper(private val activity: Activity) {
                 onFinish()
             }
         }
-    }
-
-    fun showInterstitialAd(onFinish: () -> Unit) {
-        appInterstitialAdManager.showInterstitial(activity, object :
-            AppInterstitialAdManager.InterstitialAdListener {
-            override fun onClose() {
-                onFinish()
-            }
-
-            override fun onAdNotLoaded() {
-                onFinish()
-            }
-        })
-    }
-
-    fun loadAndShowInterstitialAd(onFinish: () -> Unit, onAdNotLoaded: () -> Unit = {}) {
-        createTimer {
-            appInterstitialAdManager.showInterstitial(activity, object :
-                AppInterstitialAdManager.InterstitialAdListener {
-                override fun onClose() {
-                    onFinish()
-                }
-
-                override fun onAdNotLoaded() {
-                    onFinish()
-                }
-            })
-        }
-
-        // This sample attempts to load ads using consent obtained in the previous session.
-        appInterstitialAdManager.showInterstitial(activity, object :
-            AppInterstitialAdManager.InterstitialAdListener {
-            override fun onClose() {
-                timer.cancel()
-                onFinish()
-            }
-
-            override fun onAdNotLoaded() {
-                onAdNotLoaded()
-            }
-        })
-    }
-
-    private fun loadInterstitialAd(onFinish: () -> Unit = {}) {
-        appInterstitialAdManager.loadAd(
-            activity,
-            listener = object : AppInterstitialAdManager.InterstitialAdLoadingListener {
-                override fun onClose() {
-                    onFinish()
-                    finishTimer()
-                }
-            })
     }
 
     private fun loadBanner(listener: (AdView) -> Unit = {}) {
@@ -269,16 +202,7 @@ class AdHelper(private val activity: Activity) {
         timer.start()
     }
 
-    enum class AdType {
-        APP_OPEN,
-        NATIVE,
-        BANNER,
-        INTERSTITIAL,
-        REWARDED
-    }
-
     companion object {
-        private val TAG = AdHelper::class.simpleName
         const val COUNTER_TIME_MILLISECONDS = 10000L
     }
 }

@@ -17,9 +17,9 @@ object InterAd {
     private var onLoaded: (() -> Unit)? = null
 
     fun loadAd(activity: Activity, onLoaded: () -> Unit = {}, onLoading: () -> Unit = {}) {
-        if (InterAd.onLoaded == null) {
+//        if (this.onLoaded == null) {
             InterAd.onLoaded = onLoaded
-        }
+//        }
         if (adIsLoading) {
             onLoading()
             return
